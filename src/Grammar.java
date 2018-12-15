@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class Grammar {
-	private Set<String> terminals;
-	private Set<String> nonTerminals;
+	private List<String> terminals;
+	private List<String> nonTerminals;
 	private String startingSymbol;
 	private Map<String, List<String>> productions;
 	//	private static final String NON_TERMINAL_REGEX = "[A-Z]";
@@ -21,7 +21,7 @@ public class Grammar {
 	*/
 	private static final String EMPTY_SYMBOL = "~";
 	private static final String NON_TERMINAL_REGEX = "<[A-Z_]+>";
-	private static final String TERMINAL_REGEX = "(\"[a-zA-Z0-9_'\"]\"|[2-9]|[1-2][0-9]|3[0-3])";
+	private static final String TERMINAL_REGEX = "(<([0-9]|[1-2][0-9]|3[0-3])>)";
 	private static final String NON_TERMINAL_LINE_REGEX = NON_TERMINAL_REGEX + "(," + NON_TERMINAL_REGEX + ")*";
 	private static final String TERMINAL_LINE_REGEX = TERMINAL_REGEX + "(," + TERMINAL_REGEX + ")*";
 	private static final String PRODUCTION = "(( ?(" + NON_TERMINAL_REGEX + "|" + TERMINAL_REGEX +
@@ -30,34 +30,9 @@ public class Grammar {
 	private static final String PRODUCTION_REGEX = NON_TERMINAL_REGEX + " ?-> ?" + PRODUCTION + "( ?\\| ?" + PRODUCTION + ")*";
 	private static final String INVALID_FORMAT = "Invalid format";
 
-
-	public void readFromKeyboard() throws Exception {
-		initializeFields();
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Input the non-terminals:");
-		String line = scanner.nextLine();
-		symbolsToSet(line, nonTerminals, NON_TERMINAL_LINE_REGEX, NON_TERMINAL_REGEX);
-
-		System.out.println("Input the terminals:");
-		line = scanner.nextLine();
-		symbolsToSet(line, terminals, TERMINAL_LINE_REGEX, TERMINAL_REGEX);
-
-		System.out.println("Input the starting symbol:");
-		line = scanner.nextLine();
-		if (line == null || !line.matches(NON_TERMINAL_REGEX) || !nonTerminals.contains(line)) {
-			throw new Exception(INVALID_FORMAT);
-		}
-		startingSymbol = line;
-
-		System.out.println("Input the productions on each row, press Enter again when you want to stop:");
-		while (!(line = scanner.nextLine()).equals("")) {
-			addProductionToNonTerminal(line);
-		}
-	}
-
 	private void initializeFields() {
-		nonTerminals = new HashSet<>();
-		terminals = new HashSet<>();
+		nonTerminals = new ArrayList<>();
+		terminals = new ArrayList<>();
 		productions = new HashMap<>();
 	}
 
@@ -94,13 +69,26 @@ public class Grammar {
 		if (!nonTerminals.contains(nonTerminal)) {
 			throw new Exception(INVALID_FORMAT);
 		}
+
+		for (String productionSymbols : rightHandSide) {
+			for (String symbol : splitProductionIntoSymbols(productionSymbols)) {
+				if (!terminals.contains(symbol) && !nonTerminals.contains(symbol) && !symbol.equals(EMPTY_SYMBOL)) {
+					throw new Exception(INVALID_FORMAT);
+				}
+			}
+		}
+
 		if (!productions.containsKey(nonTerminal)) {
 			productions.put(nonTerminal, new ArrayList<>());
 		}
 		productions.get(nonTerminal).addAll(Arrays.asList(rightHandSide));
 	}
 
-	private void symbolsToSet(String line, Set<String> symbolList, String lineRegex, String symbolRegex) throws Exception {
+	public String[] splitProductionIntoSymbols(String production) {
+		return production.split("(?<=>)");
+	}
+
+	private void symbolsToSet(String line, List<String> symbolList, String lineRegex, String symbolRegex) throws Exception {
 		if (line == null || !line.matches(lineRegex)) {
 			throw new Exception(INVALID_FORMAT);
 		}
@@ -134,19 +122,19 @@ public class Grammar {
 		return true;
 	}
 
-	public Set<String> getTerminals() {
+	public List<String> getTerminals() {
 		return terminals;
 	}
 
-	public void setTerminals(Set<String> terminals) {
+	public void setTerminals(List<String> terminals) {
 		this.terminals = terminals;
 	}
 
-	public Set<String> getNonTerminals() {
+	public List<String> getNonTerminals() {
 		return nonTerminals;
 	}
 
-	public void setNonTerminals(Set<String> nonTerminals) {
+	public void setNonTerminals(List<String> nonTerminals) {
 		this.nonTerminals = nonTerminals;
 	}
 
@@ -164,5 +152,17 @@ public class Grammar {
 
 	public void setProductions(Map<String, List<String>> productions) {
 		this.productions = productions;
+	}
+
+	public static String getEmptySymbol() {
+		return EMPTY_SYMBOL;
+	}
+
+	public static String getNonTerminalRegex() {
+		return NON_TERMINAL_REGEX;
+	}
+
+	public static String getTerminalRegex() {
+		return TERMINAL_REGEX;
 	}
 }
