@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,7 +14,7 @@ public class Parser {
 		grammar.getNonTerminals().forEach((nonTerminal) -> {
 			first.put(nonTerminal, new HashSet<>());
 			grammar.getProductions().get(nonTerminal).forEach((production) -> {
-				String firstSymbolInProduction = grammar.splitProductionIntoSymbols(production)[0];
+				String firstSymbolInProduction = grammar.splitProductionIntoSymbols(production.getValue())[0];
 				if (firstSymbolInProduction.matches(Grammar.getTerminalRegex() + "|" + Grammar.getEmptySymbol())) {
 					first.get(nonTerminal).add(firstSymbolInProduction);
 				}
@@ -28,7 +27,7 @@ public class Parser {
 			for (String nonTerminal : grammar.getNonTerminals()) {
 				int previousSize = first.get(nonTerminal).size();
 				grammar.getProductions().get(nonTerminal).forEach((production) -> {
-					String[] symbolsInProduction = grammar.splitProductionIntoSymbols(production);
+					String[] symbolsInProduction = grammar.splitProductionIntoSymbols(production.getValue());
 					String firstSymbolInProduction = symbolsInProduction[0];
 					if (firstSymbolInProduction.matches(Grammar.getNonTerminalRegex())) {
 						List<Set<String>> previousFirstForAllProductionSymbols =  Stream.of(symbolsInProduction)
@@ -58,6 +57,10 @@ public class Parser {
 		});
 		return result;
 	}
+
+//	public Map<String, Set<String>> follow(Grammar grammar) {
+//
+//	}
 
 	public String parseSequence(Grammar contextFreeGrammar, String inputSequence) {
 		return "";

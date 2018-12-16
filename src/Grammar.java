@@ -1,13 +1,15 @@
+import javafx.util.Pair;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class Grammar {
-	private List<String> terminals;
-	private List<String> nonTerminals;
+	private Set<String> terminals;
+	private Set<String> nonTerminals;
 	private String startingSymbol;
-	private Map<String, List<String>> productions;
+	private Map<String, Set<Pair<Integer, String>>> productions;
 	//	private static final String NON_TERMINAL_REGEX = "[A-Z]";
 //	private static final String TERMINAL_REGEX = "[a-z]";
 	/*
@@ -29,10 +31,11 @@ public class Grammar {
 
 	private static final String PRODUCTION_REGEX = NON_TERMINAL_REGEX + " ?-> ?" + PRODUCTION + "( ?\\| ?" + PRODUCTION + ")*";
 	private static final String INVALID_FORMAT = "Invalid format";
+	private Integer nextProductionNumber = 1;
 
 	private void initializeFields() {
-		nonTerminals = new ArrayList<>();
-		terminals = new ArrayList<>();
+		nonTerminals = new HashSet<>();
+		terminals = new HashSet<>();
 		productions = new HashMap<>();
 	}
 
@@ -79,16 +82,18 @@ public class Grammar {
 		}
 
 		if (!productions.containsKey(nonTerminal)) {
-			productions.put(nonTerminal, new ArrayList<>());
+			productions.put(nonTerminal, new HashSet<>());
 		}
-		productions.get(nonTerminal).addAll(Arrays.asList(rightHandSide));
+		for (String currentProduction : rightHandSide) {
+			productions.get(nonTerminal).add(new Pair<>(nextProductionNumber++, currentProduction));
+		}
 	}
 
 	public String[] splitProductionIntoSymbols(String production) {
 		return production.split("(?<=>)");
 	}
 
-	private void symbolsToSet(String line, List<String> symbolList, String lineRegex, String symbolRegex) throws Exception {
+	private void symbolsToSet(String line, Set<String> symbolList, String lineRegex, String symbolRegex) throws Exception {
 		if (line == null || !line.matches(lineRegex)) {
 			throw new Exception(INVALID_FORMAT);
 		}
@@ -104,37 +109,19 @@ public class Grammar {
 		symbolList.addAll(Arrays.asList(symbols));
 	}
 
-	public boolean isRegular() {
-		for (String nonTerminal : productions.keySet()) {
-			for (String rightHandSide : productions.get(nonTerminal)) {
-				if (!rightHandSide.matches("(" + TERMINAL_REGEX + "(" + NON_TERMINAL_REGEX + ")" + "?)|" + EMPTY_SYMBOL))
-				{
-					return false;
-				}
-				if (rightHandSide.equals(EMPTY_SYMBOL) && !nonTerminal.equals(startingSymbol)) {
-					return false;
-				}
-				if (rightHandSide.contains(startingSymbol) && productions.get(startingSymbol).contains(EMPTY_SYMBOL)) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public List<String> getTerminals() {
+	public Set<String> getTerminals() {
 		return terminals;
 	}
 
-	public void setTerminals(List<String> terminals) {
+	public void setTerminals(Set<String> terminals) {
 		this.terminals = terminals;
 	}
 
-	public List<String> getNonTerminals() {
+	public Set<String> getNonTerminals() {
 		return nonTerminals;
 	}
 
-	public void setNonTerminals(List<String> nonTerminals) {
+	public void setNonTerminals(Set<String> nonTerminals) {
 		this.nonTerminals = nonTerminals;
 	}
 
@@ -146,11 +133,11 @@ public class Grammar {
 		this.startingSymbol = startingSymbol;
 	}
 
-	public Map<String, List<String>> getProductions() {
+	public Map<String, Set<Pair<Integer, String>>> getProductions() {
 		return productions;
 	}
 
-	public void setProductions(Map<String, List<String>> productions) {
+	public void setProductions(Map<String, Set<Pair<Integer, String>>> productions) {
 		this.productions = productions;
 	}
 
