@@ -1,7 +1,7 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // ll(1)
 // parsing string
@@ -28,9 +28,15 @@ public class Parser {
 			for (String nonTerminal : grammar.getNonTerminals()) {
 				int previousSize = first.get(nonTerminal).size();
 				grammar.getProductions().get(nonTerminal).forEach((production) -> {
-					String firstSymbolInProduction = grammar.splitProductionIntoSymbols(production)[0];
+					String[] symbolsInProduction = grammar.splitProductionIntoSymbols(production);
+					String firstSymbolInProduction = symbolsInProduction[0];
 					if (firstSymbolInProduction.matches(Grammar.getNonTerminalRegex())) {
-						first.get(nonTerminal).addAll(previousFirst.get(firstSymbolInProduction));
+						List<Set<String>> previousFirstForAllProductionSymbols =  Stream.of(symbolsInProduction)
+								.map(previousFirst::get).collect(Collectors.toList());
+						Set<String> firstSymbolsFromNonTerminal = previousFirstForAllProductionSymbols.stream()
+								.reduce(new HashSet<>(Collections.singletonList(Grammar.getEmptySymbol())),
+										this::additionOfFirstElements);
+						first.get(nonTerminal).addAll(firstSymbolsFromNonTerminal);
 					}
 				});
 				if (previousSize != first.get(nonTerminal).size()) {
@@ -39,6 +45,18 @@ public class Parser {
 			}
 		} while (changed);
 		return first;
+	}
+
+	private Set<String> additionOfFirstElements(Set<String> firstSet, Set<String> secondSet) {
+		Set<String> result = new HashSet<>();
+		firstSet.forEach((firstSetElement) -> {
+			if (firstSetElement.equals(Grammar.getEmptySymbol())) {
+				result.addAll(secondSet);
+			} else {
+				result.add(firstSetElement);
+			}
+		});
+		return result;
 	}
 
 	public String parseSequence(Grammar contextFreeGrammar, String inputSequence) {
