@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,8 +9,8 @@ public class Grammar {
 	private List<String> terminals;
 	private List<String> nonTerminals;
 	private String startingSymbol;
-	private Map<String, List<String>> productions;
-	//	private static final String NON_TERMINAL_REGEX = "[A-Z]";
+	private Map<String, Pair<Integer, List<String>>> productions;
+	//	private static final String NO N_TERMINAL_REGEX = "[A-Z]";
 //	private static final String TERMINAL_REGEX = "[a-z]";
 	/*
 	<S>,<A>,<B>
@@ -146,7 +148,7 @@ public class Grammar {
 		this.startingSymbol = startingSymbol;
 	}
 
-	public Map<String, List<String>> getProductions() {
+	public Map<String, Pair<Integer, List<String>>> getProductions() {
 		return productions;
 	}
 

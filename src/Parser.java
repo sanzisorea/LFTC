@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,5 +63,17 @@ public class Parser {
 
 	public String parseSequence(Grammar contextFreeGrammar, String inputSequence) {
 		return "";
+	}
+
+
+	public Map<Pair<String, String>, String> generateTable(Grammar grammar, Map<String, Set<String>> first, Map<String, Set<String>> follow)
+	{
+		Map<String, Pair<Integer, List<String>>> productions = grammar.getProductions();
+		List<String> terminals = grammar.getTerminals();
+		List<String> nonTerminals = grammar.getNonTerminals();
+
+		Map<Pair<String, String>, String> table = new HashMap<>();
+
+		return null;
 	}
 }
