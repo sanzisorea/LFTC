@@ -1,7 +1,6 @@
 import javafx.util.Pair;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -9,7 +8,7 @@ import java.util.stream.Stream;
 // parsing string
 public class Parser {
 
-	public Map<String, Set<String>> first(Grammar grammar)
+	Map<String, Set<String>> first(Grammar grammar)
 	{
 		Map<String, Set<String>> first = new HashMap<>();
 		grammar.getTerminals().forEach((terminal) -> {
@@ -58,6 +57,11 @@ public class Parser {
 			}
 		} while (changed);
 		return first;
+	}
+
+	Map<String, Set<String>> follow(Grammar grammar, Map<String, Set<String>> first)
+	{
+		return new HashMap<>();
 	}
 
 	private Set<String> additionOfFirstElements(Set<String> firstSet, Set<String> secondSet) {
@@ -118,8 +122,57 @@ public class Parser {
 		}
 
 		table.put(new Pair<>("$", "$"), new Pair<>(0, "acc"));
-		
+
 
 		return table;
+	}
+
+	List<String> parse(String inputString, Grammar grammar)
+	{
+		Map<String, Set<String>> first = first(grammar);
+		Map<String, Set<String>> follow = follow(grammar, first);
+		Map<Pair<String, String>, Pair<Integer, String>> ll1Table = generateTable(grammar, first, follow);
+
+		List<String> inputList = new ArrayList<>(Arrays.asList(inputString.split("")));
+		Collections.reverse(inputList);
+		Stack<String> inputStack = new Stack<>();
+		inputStack.push("$");
+		inputStack.addAll(inputList);
+
+		Stack<String> workingStack = new Stack<>();
+		workingStack.push("$");
+		workingStack.push(grammar.getStartingSymbol());
+
+
+		List<String> outputStack = new ArrayList<>();
+		outputStack.add(Grammar.getEmptySymbol());
+
+		while(true)
+		{
+			String workingStackTop = workingStack.peek();
+			String inputStackTop = inputStack.peek();
+			Pair<String, String> currentTableCell = new Pair<>(workingStackTop, inputStackTop);
+
+			if(workingStackTop.matches(Grammar.getNonTerminalRegex()) && ll1Table.containsKey(currentTableCell))
+			{
+				workingStack.pop();
+				workingStack.push(ll1Table.get(currentTableCell).getValue());
+				outputStack.add(ll1Table.get(currentTableCell).getKey().toString());
+			}
+			else if (workingStackTop.matches(Grammar.getTerminalRegex()) && ll1Table.containsKey(currentTableCell) && ll1Table.get(currentTableCell).getValue().equals("pop"))
+			{
+				inputStack.pop();
+				workingStack.pop();
+			}
+			else if(workingStackTop.equals("$") && inputStackTop.equals("$"))
+			{
+				return outputStack;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 	}
 }
