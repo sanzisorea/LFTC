@@ -1,3 +1,5 @@
+package grammar;
+
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
@@ -24,6 +26,8 @@ public class Grammar {
 	private static final String EMPTY_SYMBOL = "~";
 	private static final String NON_TERMINAL_REGEX = "<[A-Z_]+>";
 	private static final String TERMINAL_REGEX = "(<([0-9]|[1-2][0-9]|3[0-3])>)";
+	//for example
+//	private static final String TERMINAL_REGEX = "(<[+*()a]>)";
 	private static final String NON_TERMINAL_LINE_REGEX = NON_TERMINAL_REGEX + "(," + NON_TERMINAL_REGEX + ")*";
 	private static final String TERMINAL_LINE_REGEX = TERMINAL_REGEX + "(," + TERMINAL_REGEX + ")*";
 	private static final String PRODUCTION = "(( ?(" + NON_TERMINAL_REGEX + "|" + TERMINAL_REGEX +
