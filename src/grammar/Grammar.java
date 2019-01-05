@@ -113,6 +113,19 @@ public class Grammar {
 		symbolList.addAll(Arrays.asList(symbols));
 	}
 
+	public String getProductionByNumber(int productionNumber) {
+		StringBuilder production = new StringBuilder();
+		for (Map.Entry<String, Set<Pair<Integer, String>>> nonTerminal : productions.entrySet()) {
+			for (Pair<Integer, String> nonTerminalProduction : nonTerminal.getValue()) {
+				if (nonTerminalProduction.getKey() == productionNumber) {
+					production.append(nonTerminal.getKey()).append(" -> ").append(nonTerminalProduction.getValue());
+					return production.toString();
+				}
+			}
+		}
+		return production.toString();
+	}
+
 	public Set<String> getTerminals() {
 		return terminals;
 	}
