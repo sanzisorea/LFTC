@@ -113,7 +113,7 @@ public class Parser {
 	}
 
 	private Map<Pair<String, String>, Pair<Integer, String>> generateTable(
-			Grammar grammar, Map<String, Set<String>> first, Map<String, Set<String>> follow) {
+			Grammar grammar, Map<String, Set<String>> first, Map<String, Set<String>> follow) throws Exception {
 		Map<String, Set<Pair<Integer, String>>> productions = grammar.getProductions();
 		Set<String> terminals = grammar.getTerminals();
 		Set<String> nonTerminals = grammar.getNonTerminals();
@@ -126,27 +126,29 @@ public class Parser {
 				List<Set<String>> firstTerminals = Arrays.stream(firstTerminal).map(first::get).collect(Collectors.toList());
 				Set<String> firsts = firstTerminals.stream().reduce(new HashSet<>(Collections.
 						singletonList(Grammar.getEmptySymbol())), this::additionOfFirstElements);
-//				System.out.println("production " + production.getValue());
-//				System.out.print("first Terminal ");
-//				for (String t : firstTerminal) {
-//					System.out.print(t + " ");
-//				}
-//				System.out.println();
-//				System.out.println("first terminals " + firstTerminals + " firsts " + firsts);
+
 				for(String currentTerminal : firsts) {
 					if(!currentTerminal.equals(Grammar.getEmptySymbol())) {
-						table.put(new Pair<>(nonTerminal, currentTerminal), production);
+//						if (!table.containsKey(new Pair<>(nonTerminal, currentTerminal))) {
+							table.put(new Pair<>(nonTerminal, currentTerminal), production);
+//						} else {
+//							throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + currentTerminal);
+//						}
 					}
 				}
 
 				if(firsts.contains(Grammar.getEmptySymbol())) {
-					follow.get(nonTerminal).forEach((elem) -> {
+					for (String elem : follow.get(nonTerminal)) {
 						if (elem.equals(Grammar.getEmptySymbol())) {
 							table.put(new Pair<>(nonTerminal, "$"), production);
 						} else {
-							table.put(new Pair<>(nonTerminal, elem), production);
+//							if (!table.containsKey(new Pair<>(nonTerminal, elem))) {
+								table.put(new Pair<>(nonTerminal, elem), production);
+//							} else {
+//								throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + elem);
+//							}
 						}
-					});
+					}
 				}
 			}
 		}
@@ -160,18 +162,18 @@ public class Parser {
 	public List<String> parse(String inputString, Grammar grammar) {
 		Map<String, Set<String>> first = first(grammar);
 		Map<String, Set<String>> follow = follow(grammar, first);
-		Map<Pair<String, String>, Pair<Integer, String>> ll1Table = generateTable(grammar, first, follow);
-
-//		System.out.println("First");
-//		first.forEach((key, value) -> System.out.println(key + " : " + value));
-//		System.out.println("Follow");
-//		follow.forEach((key, value) -> System.out.println(key + " : " + value));
-//		System.out.println("Table");
-//		ll1Table.forEach((key, value) -> System.out.println(key + " : " + value));
-
+		Map<Pair<String, String>, Pair<Integer, String>> ll1Table;
+		try {
+			ll1Table = generateTable(grammar, first, follow);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
 
 		List<String> inputList = new ArrayList<>(Arrays.asList(inputString.split("(?<=>)")));
+
 		System.out.println(inputList);
+
 		Collections.reverse(inputList);
 		Stack<String> inputStack = new Stack<>();
 		inputStack.push("$");
@@ -185,9 +187,6 @@ public class Parser {
 		outputStack.add(Grammar.getEmptySymbol());
 
 		while(true) {
-//			System.out.println("Input stack: " + inputStack);
-//			System.out.println("Working stack: " + workingStack);
-//			System.out.println("Output stack: " + outputStack);
 			String workingStackTop = workingStack.peek();
 			String inputStackTop = inputStack.peek();
 			Pair<String, String> currentTableCell = new Pair<>(workingStackTop, inputStackTop);

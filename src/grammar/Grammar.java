@@ -118,7 +118,11 @@ public class Grammar {
 		for (Map.Entry<String, Set<Pair<Integer, String>>> nonTerminal : productions.entrySet()) {
 			for (Pair<Integer, String> nonTerminalProduction : nonTerminal.getValue()) {
 				if (nonTerminalProduction.getKey() == productionNumber) {
-					production.append(nonTerminal.getKey()).append(" -> ").append(nonTerminalProduction.getValue());
+					production.append(productionNumber)
+							.append(": ")
+							.append(nonTerminal.getKey())
+							.append(" -> ")
+							.append(nonTerminalProduction.getValue());
 					return production.toString();
 				}
 			}

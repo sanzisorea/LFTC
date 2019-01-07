@@ -1,0 +1,19 @@
+FIRST:
+    - for each terminal a FIRST(a) = {a}
+    - for each non-terminal A:
+        - first iteration: for each production A -> ab if a is terminal or a = ~ FIRST(A) = {a}
+        - do while FIRST changes for any symbol between iterations:
+            - for each production A -> BC if C is a non-terminal FIRST(A) = FIRST(A) U (FIRST(B) + FIRST(C))
+                where FIRST(B) + FIRST(C) is FIRST(B) if ~ is not in FIRST(B) and FIRST(B)\{~} U FIRST(C) if
+                ~ is in FIRST(B)
+
+FOLLOW:
+    - FOLLOW(S) = {~} where S - starting symbol
+    - do while FOLLOW changes for any symbol between iterations:
+        - for each production A -> aBC:
+            - FOLLOW(C) = FOLLOW(C) U FOLLOW(A)
+            - FOLLOW(B) = FOLLOW(B) U FIRST(C)
+            - if FIRST(C) contains ~ then FOLLOW(B) = FOLLOW(B) U FOLLOW(A)
+
+conflicts:
+    - if two separate productions of a non-terminal start with the same symbol, the program exits with a message

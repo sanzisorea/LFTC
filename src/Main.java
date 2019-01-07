@@ -13,8 +13,10 @@ public class Main {
 //			grammar.readFromFile("src/files/exampleGrammar.txt");
 			grammar.readFromFile("src/files/grammarWithoutIdAndConst.txt");
 			List<String> parsingString = parser.parseFromScanner(grammar, scanner, "src/files/program1.txt");
-			System.out.println(parsingString);
-			parsingString.forEach((production) -> System.out.println(grammar.getProductionByNumber(Integer.parseInt(production))));
+			if (parsingString != null) {
+				System.out.println(parsingString);
+				parsingString.forEach((production) -> System.out.println(grammar.getProductionByNumber(Integer.parseInt(production))));
+			}
 //			System.out.println(parser.parse("<a><*><(><a><+><a><)>", grammar));
 		} catch (Exception e) {
 			e.printStackTrace();
