@@ -129,11 +129,11 @@ public class Parser {
 
 				for(String currentTerminal : firsts) {
 					if(!currentTerminal.equals(Grammar.getEmptySymbol())) {
-//						if (!table.containsKey(new Pair<>(nonTerminal, currentTerminal))) {
+						if (!table.containsKey(new Pair<>(nonTerminal, currentTerminal))) {
 							table.put(new Pair<>(nonTerminal, currentTerminal), production);
-//						} else {
-//							throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + currentTerminal);
-//						}
+						} else {
+							throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + currentTerminal);
+						}
 					}
 				}
 
@@ -142,11 +142,11 @@ public class Parser {
 						if (elem.equals(Grammar.getEmptySymbol())) {
 							table.put(new Pair<>(nonTerminal, "$"), production);
 						} else {
-//							if (!table.containsKey(new Pair<>(nonTerminal, elem))) {
+							if (!table.containsKey(new Pair<>(nonTerminal, elem))) {
 								table.put(new Pair<>(nonTerminal, elem), production);
-//							} else {
-//								throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + elem);
-//							}
+							} else {
+								throw new Exception("Conflict in table in cell: " + nonTerminal + ", " + elem);
+							}
 						}
 					}
 				}
